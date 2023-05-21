@@ -1,5 +1,5 @@
 
-// Mahny Barazandehtar - 20210702004 - Section 1 - CSE 212 - Assignment 8
+// Mahny Barazandehtar - 20210702004 - Section 1 - CSE 212 - Assignment 9
 
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -38,26 +38,30 @@ enum MenuOptions{
 
 public class Main {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws RoomTypeException{
 		
 		String name = null, month = null, roomType = null, employeeName = null, employeeSurname = null, billType = null, billMonth = null, balanceMonth = null;
 		int start = 0, end = 0, extra = 0, ID = 0, clothe = 0, dayCount = 0, employeeID = 0;
 		double employeePayment = 0, billAmount = 0;
+		boolean validInput = false;
 		
 		ArrayList<Calculable> HotelBook = new ArrayList<Calculable>(); 
 		Scanner keyboardInput = new Scanner(System.in);
 		
 		//Menu
-		int MenuInput;
+		int MenuInput = 0;
 		
 		do {
-			
+						
 			for(MenuOptions option : MenuOptions.values()) {
 			
 				System.out.printf(option.getOption());
-
+			}
+			
+			try {
 		
 			MenuInput = keyboardInput.nextInt();
+
 
 			switch(MenuOptions.values()[MenuInput - 1]){
 			
@@ -75,18 +79,55 @@ public class Main {
 					keyboardInput.nextLine(); // to clear the scanner
 					name = keyboardInput.nextLine();
 					
-					System.out.printf("\nRoom Type: ");
-					roomType = keyboardInput.next();
-					
+										
+					// customized exception handling for Room Type
+					validInput = false;
+					while(!validInput) {					
+						try {
+						System.out.printf("\nRoom Type: ");
+						roomType = keyboardInput.next();
+						if(roomType.equalsIgnoreCase("Single") || roomType.equalsIgnoreCase("Double") || roomType.equalsIgnoreCase("Club") || roomType.equalsIgnoreCase("Family") || roomType.equalsIgnoreCase("Family with view") || roomType.equalsIgnoreCase("Suite")) {
+						validInput = true;
+						}else {
+						throw new RoomTypeException("\nRoom Type is not valid!");
+						}}catch(RoomTypeException e) {
+							
+							System.err.println("\nRoom Type is not valid!");
+							keyboardInput.nextLine(); // to clear the scanner's buffer. this allows the user to enter a new input value
+						}
+					}
+			
 					System.out.printf("\nReservation Month: ");
 					month = keyboardInput.next();
 					
-					System.out.printf("\nReservation Start: ");
-					start = keyboardInput.nextInt();
+					// exception handling for the reservation start
+					validInput = false;
+					while (!validInput) {
+						try {	
+						System.out.printf("\nReservation Start: ");
+						start = keyboardInput.nextInt();
+						validInput = true;
+						} catch(InputMismatchException e) {
+							
+							System.err.println("\nReservation Start must be a numeric value!");
+							keyboardInput.nextLine(); // to clear the scanner's buffer. this allows the user to enter a new input value
+						}
+					}
 					
-					System.out.printf("\nReservation End: ");
-					end = keyboardInput.nextInt();
-					
+					// exception handling for the reservation end
+					validInput = false; // resets the validInput to false so the loop works
+					while (!validInput) {
+						try {
+						System.out.printf("\nReservation End: ");
+						end = keyboardInput.nextInt();					
+						validInput = true;
+						}catch(InputMismatchException e) {
+							 
+							System.err.println("\nReservation End must be a numeric value!");
+							keyboardInput.nextLine(); // to clear the scanner's buffer. this allows the user to enter a new input value
+						}					
+					}
+									
 					HotelBook.add(new Reservation(name, roomType, month, start, end));
 					System.out.printf("\nReservation ID %d is created!\n", Reservation.totalNumOfReservations);
 					break;
@@ -136,17 +177,37 @@ public class Main {
 					if(extra == 1) {
 						System.out.printf("\nType the reservation ID to credit this service: ");
 						ID = keyboardInput.nextInt();
-						System.out.printf("\nHow many pieces of clothing? ");
-						clothe = keyboardInput.nextInt();
 						
+						// exception handling for the number of clothes
+						validInput = false;
+						while(!validInput) {					
+							try {
+							System.out.printf("\nHow many pieces of clothing? ");
+							clothe = keyboardInput.nextInt();
+							validInput = true;
+							}catch(InputMismatchException e) {
+								System.err.println("\nClothing count must be a numeric value!");
+								keyboardInput.nextLine(); // to clear the scanner's buffer. this allows the user to enter a new input value
+							}
+						}
 						HotelBook.add(new Laundry(ID, clothe, 20));
 					}
 					else if(extra == 2) {
 						System.out.printf("\nType the reservation ID to credit this service: ");
 						ID = keyboardInput.nextInt();					
-						System.out.printf("\nHow many days? ");
-						dayCount = keyboardInput.nextInt();
 						
+						// exception handling for the number of days
+						validInput = false; // to reset
+						while(!validInput) {
+							try {
+							System.out.printf("\nHow many days? ");
+							dayCount = keyboardInput.nextInt();
+							validInput = true;
+							}catch(InputMismatchException e) {
+								System.err.println("\nDay count must be a numeric value!");
+							    keyboardInput.nextLine(); // to clear the scanner's buffer. this allows the user to enter a new input value
+							}
+						}
 						HotelBook.add(new Spa(ID, dayCount, 100));
 					}
 					
@@ -187,9 +248,19 @@ public class Main {
 					System.out.printf("\nID: ");
 					employeeID = keyboardInput.nextInt();
 					
-					System.out.printf("\nMonthly Payment: ");
-					employeePayment = keyboardInput.nextDouble();
-					
+					// exception handling for monthly payment
+					validInput = false; // to reset
+					while(!validInput) {
+						try {
+						System.out.printf("\nMonthly Payment: ");
+						employeePayment = keyboardInput.nextDouble();
+						validInput = true;
+						}catch(InputMismatchException e) {
+							
+							System.err.println("\nMonthly Payment must be a numeric value!");
+							keyboardInput.nextLine(); // to clear the scanner's buffer. this allows the user to enter a new input value
+						}
+					}
 					HotelBook.add(new Employees(employeeName, employeeSurname, employeePayment, employeeID));
 				
 					
@@ -201,9 +272,18 @@ public class Main {
 					System.out.printf("\nType: ");
 					billType = keyboardInput.next();
 					
-					System.out.printf("\nAmount: ");
-					billAmount = keyboardInput.nextDouble();
-					
+					validInput = false;
+					while(!validInput) {
+						try {
+						System.out.printf("\nAmount: ");
+						billAmount = keyboardInput.nextDouble();
+						validInput = true;
+						}catch(InputMismatchException e) {
+							
+							System.err.println("\nBill Amount must be a numeric value!");
+							keyboardInput.nextLine(); // to clear the scanner's buffer. this allows the user to enter a new input value						
+						}					
+					}
 					System.out.printf("\nMonth: ");
 					billMonth = keyboardInput.next();
 					
@@ -330,6 +410,10 @@ public class Main {
 					System.out.printf("Invalid input. Try again.\n\n");
 					break;
 			}
+			
+			} catch(ArrayIndexOutOfBoundsException e) {
+				System.err.println("You entered an invalid menu option. Enter again.");
+			}
 									
 			
 		} while(MenuInput != 12);
@@ -337,4 +421,5 @@ public class Main {
 		keyboardInput.close();
 		
 	}
+
 }
